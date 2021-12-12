@@ -25,11 +25,6 @@ public class Cube
     private readonly Vector3Int location_;
     private readonly int[] corners_;
 
-    public int[] GetCorners()
-    {
-        return corners_;
-    }
-    
     private int entropy_;
     
     public Cube(Vector3Int location)
@@ -69,6 +64,11 @@ public class Cube
     public int GetEntropy()
     {
         return entropy_;
+    }
+    
+    public int[] GetCorners()
+    {
+        return corners_;
     }
 
     // Picks a random combination for the uninitialized corners of the cube.

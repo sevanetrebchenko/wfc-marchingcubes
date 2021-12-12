@@ -48,6 +48,11 @@ public class WaveFunction
         }
     }
 
+    public Cube[] GetCubes()
+    {
+        return cubes_;
+    }
+
     private bool IsCollapsed()
     {
         foreach (Cube cube in cubes_)
