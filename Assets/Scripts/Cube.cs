@@ -89,7 +89,7 @@ public class Cube
             Vertex corner = corners_[i];
             if (!corner.IsCollapsed())
             {
-                corner.SetValue(RandomDouble(-2.0f, 2.0f) < 0.0 ? Vertex.BelowTerrain : Vertex.AboveTerrain);
+                corner.SetValue(HeightGenerator.GetRandomHeight(location_.x, location_.y, location_.z));
             }
         }
     }
@@ -104,11 +104,6 @@ public class Cube
         }
 
         return result;
-    }
-    
-    private double RandomDouble(double min, double max)
-    {
-        return random_.NextDouble() * (max - min) + min;
     }
     
 }
