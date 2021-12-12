@@ -59,6 +59,9 @@ public class TerrainGenerator : MonoBehaviour
 
         // Generate internal mesh.
         waveFunction_ = new WaveFunction(width - 1, height - 1, depth - 1);
+
+        InitialConditions();
+        
         waveFunction_.Run();
 
         GenerateHeightMap();
@@ -96,6 +99,35 @@ public class TerrainGenerator : MonoBehaviour
         Gizmos.DrawSphere(location, 0.1f);
     }
 
+    // Function is called before any collapsing of the function happens.
+    // Responsible for setting ALL initial conditions for the algorithm to work with.
+    void InitialConditions()
+    {
+        // Make a hole in the middle of the generated terrain.
+        int xStart = (width - 1) / 2 - 3;
+        int xEnd = (width - 1) / 2 + 3;
+        
+        int zStart = (depth - 1) / 2 - 3;
+        int zEnd = (depth - 1) / 2 + 3;
+
+        for (int x = xStart; x < xEnd; ++x)
+        {
+            for (int y = 0; y < height - 1; ++y)
+            {
+                for (int z = zStart; z < zEnd; ++z)
+                {
+                    Cube cube = waveFunction_.GetCube(x, y, z);
+                    Vertex[] corners = cube.GetCorners();
+
+                    for (int i = 0; i < 8; ++i)
+                    {
+                        corners[i].SetValue(Vertex.AboveTerrain);
+                    }
+                }
+            }
+        }
+    }
+    
     private void GenerateHeightMap()
     {
         // Initialize all nodes as air nodes.

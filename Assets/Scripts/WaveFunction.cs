@@ -412,12 +412,12 @@ public class WaveFunction
         }
     }
 
-    private Cube GetCube(Vector3Int location)
+    public Cube GetCube(Vector3Int location)
     {
         return GetCube(location.x, location.y, location.z);
     }
 
-    private Cube GetCube(int x, int y, int z)
+    public Cube GetCube(int x, int y, int z)
     {
         int index = GetIndex(x, y, z);
         if (index < 0)
