@@ -18,12 +18,8 @@ using Random = System.Random;
 //  0           1
 public class Cube
 {
-    private const int Uninitialized = -2;
-    private const int AboveTerrain = 1;
-    private const int BelowTerrain = -1;
-    
     private readonly Vector3Int location_;
-    private readonly int[] corners_;
+    private readonly Vertex[] corners_;
 
     private int entropy_;
     private Random random_;
@@ -31,11 +27,11 @@ public class Cube
     public Cube(Vector3Int location)
     {
         location_ = location;
-        corners_ = new int[8];
+        corners_ = new Vertex[8];
 
         for (int i = 0; i < 8; ++i)
         {
-            corners_[i] = Uninitialized;
+            corners_[i] = new Vertex();
         }
         
         entropy_ = IntPow(2, 8); // 2 ^ 8 total possible combinations.
@@ -47,9 +43,9 @@ public class Cube
     {
         int numUninitialized = 0;
 
-        foreach (int corner in corners_)
+        foreach (Vertex corner in corners_)
         {
-            if (corner == Uninitialized)
+            if (!corner.IsCollapsed())
             {
                 ++numUninitialized;
             }
@@ -74,7 +70,7 @@ public class Cube
         return entropy_;
     }
     
-    public int[] GetCorners()
+    public Vertex[] GetCorners()
     {
         return corners_;
     }
@@ -90,9 +86,10 @@ public class Cube
         // Pick random configuration for all uninitialized vertices.
         for (int i = 0; i < 8; ++i)
         {
-            if (corners_[i] == Uninitialized)
+            Vertex corner = corners_[i];
+            if (!corner.IsCollapsed())
             {
-                corners_[i] = RandomDouble(-2.0f, 2.0f) < 0.0f ? BelowTerrain : AboveTerrain;
+                corner.SetValue(RandomDouble(-2.0f, 2.0f) < 0.0 ? Vertex.BelowTerrain : Vertex.AboveTerrain);
             }
         }
     }

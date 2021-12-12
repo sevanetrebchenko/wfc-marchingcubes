@@ -28,7 +28,7 @@ public static class MarchingCubes
         0, 4,
         1, 5,
         2, 6,
-        3, 7,
+        3, 7
     };
 
     public static readonly int[] TriangleTable = new int[4096]
