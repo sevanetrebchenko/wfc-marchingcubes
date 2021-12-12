@@ -42,6 +42,11 @@ public class TerrainGenerator : MonoBehaviour
         
     }
 
+    private void GenerateMesh()
+    {
+        
+    }
+    
     private void ConstructMesh()
     {
         // Initialize mesh triangle indices (no indexing).

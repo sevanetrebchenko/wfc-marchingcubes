@@ -2,28 +2,41 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
-
-
+// Assuming positive x points to the right, positive y points up, positive z points into the screen.
+//      6           7
+//       o--------o
+//      /        /|
+//     /        / |
+//  4 o--------o 5|
+//    |        |  |
+//  2 |        |  o 3
+//    |        | /
+//    |        |/
+//    o--------o
+//  0           1
 public class Cube
 {
-    public enum Side
+    private const int Uninitialized = -2;
+    private const int AboveTerrain = 1;
+    private const int BelowTerrain = -1;
+    
+    private readonly Vector3Int location_;
+    private readonly int[] corners_;
+
+    public int[] GetCorners()
     {
-        Front,
-        Back,
-        Right,
-        Left,
-        Top,
-        Bottom
+        return corners_;
     }
     
-    private Vertex[] corners_;
-    private int entropy;
+    private int entropy_;
     
-    public Cube()
+    public Cube(Vector3Int location)
     {
-        corners_ = new Vertex[8];
-        entropy = IntPow(2, 8); // 2 ^ 8 total possible combinations.
+        location_ = location;
+        corners_ = new int[8];
+        entropy_ = IntPow(2, 8); // 2 ^ 8 total possible combinations.
     }
 
     // Get the total number of combinations this cube has with the given corner configuration.
@@ -31,29 +44,31 @@ public class Cube
     {
         int numUninitialized = 0;
 
-        foreach (Vertex corner in corners_)
+        foreach (int corner in corners_)
         {
-            if (!corner.IsInitialized)
+            if (corner == Uninitialized)
             {
                 ++numUninitialized;
             }
-            
-            // Clear flags for new collapse iteration.
-            corner.Update();
         }
         
         // Each vertex has two possible states.
-        entropy = IntPow(2, numUninitialized);
+        entropy_ = IntPow(2, numUninitialized);
     }
 
+    public Vector3Int GetLocation()
+    {
+        return location_;
+    }
+    
     public bool IsCollapsed()
     {
-        return entropy == 0;
+        return entropy_ == 0;
     }
 
     public int GetEntropy()
     {
-        return entropy;
+        return entropy_;
     }
 
     // Picks a random combination for the uninitialized corners of the cube.
@@ -67,50 +82,11 @@ public class Cube
         // Pick random configuration for all uninitialized vertices.
         for (int i = 0; i < 8; ++i)
         {
-            Vertex corner = corners_[i];
-
-            if (!corner.IsInitialized)
+            if (corners_[i] == Uninitialized)
             {
-                // TODO: constraints?
-                corner.Initialize();
+                corners_[i] = RandomDouble(-1.0f, 1.0f) < 0.0f ? BelowTerrain : AboveTerrain;
             }
         }
-    }
-
-    // Collapsed cube has all 8 valid corners, need to propagate the result of its collapse to this cube.
-    // Returns whether propagation had an effect on the configuration of this cube.
-    //      6           7
-    //       +--------+
-    //      /        /|
-    //     /        / |
-    //  4 +--------+ 5|
-    //    |        |  |
-    //  2 |        |  + 3
-    //    |        | /
-    //    |        |/
-    //    +--------+
-    //  0           1
-    // Note: 'side' is the position of the collapsed cube relative to this one.
-    // i.e. collapsed with FRONT propagates to this cube's BACK face.
-    public bool Propagate(Cube collapsed, Side side)
-    {
-        switch (side)
-        {
-            case Side.Front:
-                break;
-            case Side.Back:
-                break;
-            case Side.Right:
-                break;
-            case Side.Left:
-                break;
-            case Side.Top:
-                break;
-            case Side.Bottom:
-                break;
-        }
-        
-        return false;
     }
 
     // Not safe, does not account for negative numbers.
@@ -123,6 +99,12 @@ public class Cube
         }
 
         return result;
+    }
+    
+    private double RandomDouble(double min, double max)
+    {
+        Random random = new Random();
+        return random.NextDouble() * (max - min) + min;
     }
     
 }

@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,28 +6,41 @@ using UnityEngine;
 public class WaveFunction
 {
     private Cube[] cubes_;
-    
+
     // Dimension of wave function (in cubes).
     private int width_;
     private int height_;
     private int depth_;
     private int totalNumCubes_;
 
-    private Stack<int> propagationStack_;
-    
     public WaveFunction(int widthInCubes, int heightInCubes, int depthInCubes)
     {
         width_ = widthInCubes;
         height_ = heightInCubes;
         depth_ = depthInCubes;
         totalNumCubes_ = widthInCubes * heightInCubes * depthInCubes;
-        
-        cubes_ = new Cube[totalNumCubes_];
 
-        propagationStack_ = new Stack<int>();
+        InitializeCubes();
     }
 
-    public void Update()
+    private void InitializeCubes()
+    {
+        cubes_ = new Cube[totalNumCubes_];
+
+        for (int x = 0; x < width_; ++x)
+        {
+            for (int y = 0; y < height_; ++y)
+            {
+                for (int z = 0; z < depth_; ++z)
+                {
+                    int index = GetIndex(x, y, z);
+                    cubes_[index] = new Cube(new Vector3Int(x, y, z));
+                }
+            }
+        }
+    }
+
+    public void Run()
     {
         while (!IsCollapsed())
         {
@@ -71,12 +83,12 @@ public class WaveFunction
     {
         int lowestEntropyIndex = -1;
         int lowestEntropy = Int32.MaxValue;
-        
+
         for (int i = 0; i < totalNumCubes_; ++i)
         {
             Cube cube = cubes_[i];
             int currentEntropy = cube.GetEntropy();
-            
+
             if (currentEntropy < lowestEntropy)
             {
                 lowestEntropyIndex = i;
@@ -94,23 +106,378 @@ public class WaveFunction
 
     private void Propagate(int cubeIndex)
     {
-        // Kick-off propagation.
-        propagationStack_.Push(cubeIndex);
+        Cube collapsed = cubes_[cubeIndex];
+        int[] collapsedCorners = collapsed.GetCorners();
+        Vector3Int collapsedLocation = collapsed.GetLocation();
 
-        while (propagationStack_.Count > 0)
+        // Propagation affects the 26 cubes around the collapsed cube (not including the collapsed cube).
+        // Bottom row.
         {
-            int index = propagationStack_.Peek();
-            Cube cube = cubes_[index];
-            
-            
-        }
+            // (-1, -1, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[7] = collapsedCorners[0];
+                }
+            }
 
-        propagationStack_.Clear();
+            // (0, -1, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(0, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[6] = collapsedCorners[0];
+                    corners[7] = collapsedCorners[1];
+                }
+            }
+
+            // (1, -1, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[6] = collapsedCorners[1];
+                }
+            }
+
+
+            // (-1, -1, 0)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, 0);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[5] = collapsedCorners[0];
+                    corners[7] = collapsedCorners[2];
+                }
+            }
+
+            // (0, -1, 0)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(0, -1, 0);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[4] = collapsedCorners[0];
+                    corners[5] = collapsedCorners[1];
+                    corners[6] = collapsedCorners[2];
+                    corners[7] = collapsedCorners[3];
+                }
+            }
+
+            // (1, -1, 0)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(1, -1, 0);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[4] = collapsedCorners[1];
+                    corners[6] = collapsedCorners[3];
+                }
+            }
+
+
+            // (-1, -1, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, 1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[5] = collapsedCorners[2];
+                }
+            }
+
+            // (0, -1, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(0, -1, 1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[4] = collapsedCorners[2];
+                    corners[5] = collapsedCorners[3];
+                }
+            }
+
+            // (1, -1, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(1, -1, 1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[4] = collapsedCorners[3];
+                }
+            }
+        }
+        
+        // Middle row.
+        {
+            // (-1, 0, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[3] = collapsedCorners[0];
+                    corners[7] = collapsedCorners[4];
+                }
+            }
+
+            // (0, 0, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[2] = collapsedCorners[0];
+                    corners[3] = collapsedCorners[1];
+                    corners[6] = collapsedCorners[4];
+                    corners[7] = collapsedCorners[5];
+                }
+            }
+
+            // (1, 0, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[2] = collapsedCorners[1];
+                    corners[6] = collapsedCorners[5];
+                }
+            }
+
+
+            // (-1, 0, 0)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[1] = collapsedCorners[0];
+                    corners[3] = collapsedCorners[2];
+                    corners[5] = collapsedCorners[4];
+                    corners[7] = collapsedCorners[6];
+                }
+            }
+
+            // (0, 0, 0)
+            // No point in propagating to collapsed cube.
+            // {
+            //     Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+            //     Cube cube = GetCube(location);
+            //     if (cube != null)
+            //     {
+            //         int[] corners = cube.GetCorners();
+            //         corners[7] = collapsedCorners[0];
+            //     }
+            // }
+
+            // (1, 0, 0)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[0] = collapsedCorners[1];
+                    corners[2] = collapsedCorners[3];
+                    corners[5] = collapsedCorners[5];
+                    corners[6] = collapsedCorners[7];
+                }
+            }
+
+
+            // (-1, 0, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[1] = collapsedCorners[2];
+                    corners[5] = collapsedCorners[5];
+                }
+            }
+
+            // (0, 0, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[0] = collapsedCorners[2];
+                    corners[1] = collapsedCorners[3];
+                    corners[4] = collapsedCorners[6];
+                    corners[5] = collapsedCorners[7];
+                }
+            }
+
+            // (1, 0, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[0] = collapsedCorners[3];
+                    corners[4] = collapsedCorners[7];
+                }
+            }
+        }
+        
+        // Top row.
+        {
+            // (-1, 1, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[3] = collapsedCorners[4];
+                }
+            }
+
+            // (0, 1, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[2] = collapsedCorners[4];
+                    corners[3] = collapsedCorners[5];
+                }
+            }
+
+            // (1, 1, -1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[2] = collapsedCorners[5];
+                }
+            }
+
+
+            // (-1, 1, 0)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[1] = collapsedCorners[4];
+                    corners[3] = collapsedCorners[6];
+                }
+            }
+
+            // (0, 1, 0)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[0] = collapsedCorners[4];
+                    corners[1] = collapsedCorners[5];
+                    corners[2] = collapsedCorners[6];
+                    corners[3] = collapsedCorners[7];
+                }
+            }
+
+            // (1, 1, 0)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[0] = collapsedCorners[5];
+                    corners[2] = collapsedCorners[7];
+                }
+            }
+
+
+            // (-1, 1, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[1] = collapsedCorners[6];
+                }
+            }
+
+            // (0, 1, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[0] = collapsedCorners[6];
+                    corners[1] = collapsedCorners[7];
+                }
+            }
+
+            // (1, 1, 1)
+            {
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Cube cube = GetCube(location);
+                if (cube != null)
+                {
+                    int[] corners = cube.GetCorners();
+                    corners[0] = collapsedCorners[7];
+                }
+            }
+        }
+    }
+
+    private Cube GetCube(Vector3Int location)
+    {
+        return GetCube(location.x, location.y, location.z);
     }
 
     private Cube GetCube(int x, int y, int z)
     {
-        return cubes_[x + z * width_ + y * width_ * depth_];
+        int index = GetIndex(x, y, z);
+        if (index < 0 || index >= totalNumCubes_)
+        {
+            return null;
+        }
+
+        return cubes_[index];
     }
-    
+
+    private int GetIndex(Vector3Int location)
+    {
+        return GetIndex(location.x, location.y, location.z);
+    }
+
+    private int GetIndex(int x, int y, int z)
+    {
+        return x + z * width_ + y * width_ * depth_;
+    }
 }
