@@ -26,12 +26,20 @@ public class Cube
     private readonly int[] corners_;
 
     private int entropy_;
+    private Random random_;
     
     public Cube(Vector3Int location)
     {
         location_ = location;
         corners_ = new int[8];
+
+        for (int i = 0; i < 8; ++i)
+        {
+            corners_[i] = Uninitialized;
+        }
+        
         entropy_ = IntPow(2, 8); // 2 ^ 8 total possible combinations.
+        random_ = new Random();
     }
 
     // Get the total number of combinations this cube has with the given corner configuration.
@@ -58,7 +66,7 @@ public class Cube
     
     public bool IsCollapsed()
     {
-        return entropy_ == 0;
+        return entropy_ == 1; // 2 ^ 0 is 1.
     }
 
     public int GetEntropy()
@@ -84,7 +92,7 @@ public class Cube
         {
             if (corners_[i] == Uninitialized)
             {
-                corners_[i] = RandomDouble(-1.0f, 1.0f) < 0.0f ? BelowTerrain : AboveTerrain;
+                corners_[i] = RandomDouble(-2.0f, 2.0f) < 0.0f ? BelowTerrain : AboveTerrain;
             }
         }
     }
@@ -103,8 +111,7 @@ public class Cube
     
     private double RandomDouble(double min, double max)
     {
-        Random random = new Random();
-        return random.NextDouble() * (max - min) + min;
+        return random_.NextDouble() * (max - min) + min;
     }
     
 }

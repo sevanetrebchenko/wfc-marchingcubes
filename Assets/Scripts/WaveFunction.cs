@@ -42,10 +42,10 @@ public class WaveFunction
 
     public void Run()
     {
-        while (!IsCollapsed())
+        do
         {
             Iterate();
-        }
+        } while (!IsCollapsed());
     }
 
     public Cube[] GetCubes()
@@ -68,11 +68,11 @@ public class WaveFunction
 
     private void Iterate()
     {
-        UpdateCubes();
-
         int cubeIndex = GetMinimumEntropyCubeIndex();
         CollapseAt(cubeIndex);
         Propagate(cubeIndex);
+        
+        UpdateCubes();
     }
 
     private void UpdateCubes()
@@ -83,7 +83,8 @@ public class WaveFunction
         }
     }
 
-    // Get index of the cube with the lowest possible number of potential combinations (lowest entropy).
+    // Get index of the cube with the lowest possible number of potential combinations (lowest entropy) that isn't
+    // already collapsed.
     private int GetMinimumEntropyCubeIndex()
     {
         int lowestEntropyIndex = -1;
@@ -92,8 +93,13 @@ public class WaveFunction
         for (int i = 0; i < totalNumCubes_; ++i)
         {
             Cube cube = cubes_[i];
+            
+            if (cube.IsCollapsed())
+            {
+                continue;
+            }
+            
             int currentEntropy = cube.GetEntropy();
-
             if (currentEntropy < lowestEntropy)
             {
                 lowestEntropyIndex = i;
@@ -106,6 +112,7 @@ public class WaveFunction
 
     private void CollapseAt(int cubeIndex)
     {
+        Debug.Log("Collapsing cube at index: " + cubeIndex);
         cubes_[cubeIndex].Collapse();
     }
 

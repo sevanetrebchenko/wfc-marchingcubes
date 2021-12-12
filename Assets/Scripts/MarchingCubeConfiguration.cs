@@ -3,7 +3,7 @@ using Unity.Collections;
 
 public static class MarchingCubes
 {
-    public static readonly int[] CornerTable =
+    public static readonly int[] CornerTable = new int[24]
     {
         0, 0, 0,
         1, 0, 0,
@@ -15,7 +15,7 @@ public static class MarchingCubes
         0, 1, 1
     };
 
-    public static readonly int[] EdgeTable =
+    public static readonly int[] EdgeTable = new int[24]
     {
         0, 1,
         1, 2,
@@ -31,7 +31,7 @@ public static class MarchingCubes
         3, 7,
     };
 
-    public static readonly int[] TriangleTable =
+    public static readonly int[] TriangleTable = new int[4096]
     {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,

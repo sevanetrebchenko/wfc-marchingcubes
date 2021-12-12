@@ -17,10 +17,9 @@ public class TerrainGenerator : MonoBehaviour
     private int numMeshVertices_;
 
     private WaveFunction waveFunction_;
-
     private GameObject chunk_;
-    private MeshFilter meshFilter_;
-    private MeshRenderer meshRenderer_;
+
+    private bool initialized_ = false;
     
     private void Start()
     {
@@ -28,9 +27,9 @@ public class TerrainGenerator : MonoBehaviour
         chunk_ = new GameObject();
         chunk_.transform.parent = transform;
         chunk_.name = "Terrain Chunk";
-        
-        meshFilter_ = new MeshFilter();
-        meshRenderer_ = new MeshRenderer();
+
+        chunk_.AddComponent<MeshFilter>();
+        chunk_.AddComponent<MeshRenderer>();
         
         totalNumCubes_ = (width - 1) * (height - 1) * (depth - 1);
         
@@ -39,12 +38,20 @@ public class TerrainGenerator : MonoBehaviour
         numMeshVertices_ = 0;
 
         waveFunction_ = new WaveFunction(width - 1, height - 1, depth - 1);
-        
-        waveFunction_.Run();
-        GenerateMesh();
-        ConstructMesh();
     }
 
+    private void Update()
+    {
+        if (!initialized_)
+        {
+            waveFunction_.Run();
+            GenerateMesh();
+            ConstructMesh();
+
+            initialized_ = true;
+        }
+    }
+    
     private void GenerateMesh()
     {
         int vertexIndex = 0;
@@ -119,23 +126,27 @@ public class TerrainGenerator : MonoBehaviour
     private void ConstructMesh()
     {
         // Initialize mesh triangle indices (no indexing).
+        Vector3[] vertices = new Vector3[numMeshVertices_];
         int[] triangles = new int[numMeshVertices_];
+
         for (int i = 0; i < numMeshVertices_; ++i)
         {
+            vertices[i] = meshVertices_[i];
             triangles[i] = i;
         }
 
         // Create mesh.
         Mesh mesh = new Mesh();
-        mesh.vertices = meshVertices_;
+        mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
 
-        meshFilter_.mesh = mesh;
+        chunk_.GetComponent<MeshFilter>().mesh = mesh;
+        
+        Debug.Log("Constructed mesh with " + numMeshVertices_ + " vertices");
     }
 
     private void ResetGeneration()
     {
-        meshFilter_.mesh.Clear();
     }
 }
