@@ -238,7 +238,7 @@ public class WaveFunction
         {
             // (-1, 0, -1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, 0, -1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -250,7 +250,7 @@ public class WaveFunction
 
             // (0, 0, -1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(0, 0, -1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -264,7 +264,7 @@ public class WaveFunction
 
             // (1, 0, -1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(1, 0, -1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -277,7 +277,7 @@ public class WaveFunction
 
             // (-1, 0, 0)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, 0, 0);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -303,7 +303,7 @@ public class WaveFunction
 
             // (1, 0, 0)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(1, 0, 0);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -318,7 +318,7 @@ public class WaveFunction
 
             // (-1, 0, 1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, 0, 1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -330,7 +330,7 @@ public class WaveFunction
 
             // (0, 0, 1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(0, 0, 1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -344,7 +344,7 @@ public class WaveFunction
 
             // (1, 0, 1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(1, 0, 1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -359,7 +359,7 @@ public class WaveFunction
         {
             // (-1, 1, -1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, 1, -1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -370,7 +370,7 @@ public class WaveFunction
 
             // (0, 1, -1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(0, 1, -1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -382,7 +382,7 @@ public class WaveFunction
 
             // (1, 1, -1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(1, 1, -1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -394,7 +394,7 @@ public class WaveFunction
 
             // (-1, 1, 0)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, 1, 0);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -406,7 +406,7 @@ public class WaveFunction
 
             // (0, 1, 0)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(0, 1, 0);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -420,7 +420,7 @@ public class WaveFunction
 
             // (1, 1, 0)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(1, 1, 0);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -433,7 +433,7 @@ public class WaveFunction
 
             // (-1, 1, 1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(-1, 1, 1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -444,7 +444,7 @@ public class WaveFunction
 
             // (0, 1, 1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(0, 1, 1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
@@ -456,7 +456,7 @@ public class WaveFunction
 
             // (1, 1, 1)
             {
-                Vector3Int location = collapsedLocation + new Vector3Int(-1, -1, -1);
+                Vector3Int location = collapsedLocation + new Vector3Int(1, 1, 1);
                 Cube cube = GetCube(location);
                 if (cube != null)
                 {
