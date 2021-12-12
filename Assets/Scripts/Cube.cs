@@ -19,7 +19,7 @@ using Random = System.Random;
 public class Cube
 {
     private readonly Vector3Int location_;
-    private readonly Vertex[] corners_;
+    private Vertex[] corners_;
 
     private int entropy_;
     private Random random_;
@@ -27,17 +27,13 @@ public class Cube
     public Cube(Vector3Int location)
     {
         location_ = location;
-        corners_ = new Vertex[8];
 
-        for (int i = 0; i < 8; ++i)
-        {
-            corners_[i] = new Vertex();
-        }
-        
+        InitializeVertices();
+
         entropy_ = IntPow(2, 8); // 2 ^ 8 total possible combinations.
         random_ = new Random();
     }
-
+    
     // Get the total number of combinations this cube has with the given corner configuration.
     public void Update()
     {
@@ -75,25 +71,41 @@ public class Cube
         return corners_;
     }
 
-    // Picks a random combination for the uninitialized corners of the cube.
-    public void Collapse()
+    public bool HasTerrain()
     {
-        if (IsCollapsed())
+        if (!IsCollapsed())
         {
-            return;
+            return false;
         }
 
-        // Pick random configuration for all uninitialized vertices.
-        for (int i = 0; i < 8; ++i)
+        foreach (Vertex corner1 in corners_)
         {
-            Vertex corner = corners_[i];
-            if (!corner.IsCollapsed())
+            foreach (Vertex corner2 in corners_)
             {
-                corner.SetValue(HeightGenerator.GetRandomHeight(location_.x, location_.y, location_.z));
+                if (corner1.GetValue() != corner2.GetValue())
+                {
+                    // Difference in terrain values means there exists a surface.
+                    return true;
+                }
             }
         }
+        
+        return false;
     }
 
+    private void InitializeVertices()
+    {
+        corners_ = new Vertex[8];
+        corners_[0] = new Vertex(0, 0, 0);
+        corners_[1] = new Vertex(1, 0, 0);
+        corners_[2] = new Vertex(0, 0, 1);
+        corners_[3] = new Vertex(1, 0, 1);
+        corners_[4] = new Vertex(0, 1, 0);
+        corners_[5] = new Vertex(1, 1, 0);
+        corners_[6] = new Vertex(0, 1, 1);
+        corners_[7] = new Vertex(1, 1, 1);
+    }
+    
     // Not safe, does not account for negative numbers.
     private int IntPow(int value, int power)
     {

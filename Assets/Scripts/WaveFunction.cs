@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Random = System.Random;
+
 public class WaveFunction
 {
     private Cube[] cubes_;
@@ -13,12 +15,19 @@ public class WaveFunction
     private int depth_;
     private int totalNumCubes_;
 
+    private Random random_;
+
+    private List<Constraint> constraints_;
+
     public WaveFunction(int widthInCubes, int heightInCubes, int depthInCubes)
     {
         width_ = widthInCubes;
         height_ = heightInCubes;
         depth_ = depthInCubes;
         totalNumCubes_ = widthInCubes * heightInCubes * depthInCubes;
+
+        random_ = new Random();
+        constraints_ = new List<Constraint>();
 
         InitializeCubes();
     }
@@ -48,9 +57,29 @@ public class WaveFunction
         } while (!IsCollapsed());
     }
 
+    public void AddConstraint(Constraint constraint)
+    {
+        constraints_.Add(constraint);
+    }
+
     public Cube[] GetCubes()
     {
         return cubes_;
+    }
+
+    public int GetWidth()
+    {
+        return width_;
+    }
+
+    public int GetHeight()
+    {
+        return height_;
+    }
+
+    public int GetDepth()
+    {
+        return depth_;
     }
 
     private bool IsCollapsed()
@@ -87,13 +116,10 @@ public class WaveFunction
     // already collapsed.
     private int GetMinimumEntropyCubeIndex()
     {
-        int lowestEntropyIndex = -1;
         int lowestEntropy = Int32.MaxValue;
-
         for (int i = 0; i < totalNumCubes_; ++i)
         {
             Cube cube = cubes_[i];
-            
             if (cube.IsCollapsed())
             {
                 continue;
@@ -102,18 +128,43 @@ public class WaveFunction
             int currentEntropy = cube.GetEntropy();
             if (currentEntropy < lowestEntropy)
             {
-                lowestEntropyIndex = i;
                 lowestEntropy = currentEntropy;
             }
         }
+        
+        // Get all indices with this same lowest entropy, randomly pick between them.
+        List<int> sameEntropyIndices = new List<int>();
+        
+        for (int i = 0; i < totalNumCubes_; ++i)
+        {
+            Cube cube = cubes_[i];
+            if (cube.IsCollapsed())
+            {
+                continue;
+            }
 
-        return lowestEntropyIndex;
+            if (cube.GetEntropy() == lowestEntropy)
+            {
+                sameEntropyIndices.Add(i);
+            }
+        }
+
+        int numSameEntropy = sameEntropyIndices.Count;
+        int index = sameEntropyIndices[random_.Next(0, numSameEntropy)];
+        
+        // Debug.Log("Found " + numSameEntropy + " cubes with the same entropy, picking cube at index " + index);
+
+        return index;
     }
 
     private void CollapseAt(int cubeIndex)
     {
-        Debug.Log("Collapsing cube at index: " + cubeIndex);
-        cubes_[cubeIndex].Collapse();
+        // Debug.Log("Collapsing cube at index: " + cubeIndex);
+
+        foreach (Constraint constraint in constraints_)
+        {
+            constraint.Constrain(cubes_[cubeIndex], this);
+        }
     }
 
     private void Propagate(int cubeIndex)

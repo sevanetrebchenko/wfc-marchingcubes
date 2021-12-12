@@ -16,10 +16,10 @@ public static class HeightGenerator
 
     static HeightGenerator()
     {
-        numNoiseOctaves_ = 3;
-        noiseScale_ = 20.0f;
-        persistence_ = 0.3f;
-        lacunarity_ = 1.4f;
+        numNoiseOctaves_ = 1;
+        noiseScale_ = 30.0f;
+        persistence_ = 1.0f;
+        lacunarity_ = 1.0f;
         seededGenerator_ = new Random();
 
         octaveOffsets = new Vector3[numNoiseOctaves_];
@@ -30,6 +30,20 @@ public static class HeightGenerator
         }
     }
 
+    public static void Refresh()
+    {
+        for (int i = 0; i < numNoiseOctaves_; ++i)
+        {
+            octaveOffsets[i] = new Vector3(RandomDouble(-10000, 10000), RandomDouble(-10000, 10000), RandomDouble(-10000, 10000));
+        }
+    }
+
+    public static int GetRandomHeight(Vector3Int location)
+    {
+        // return RandomDouble(-10.0, 10.0) < 0.0f ? Vertex.BelowTerrain : Vertex.AboveTerrain;
+        return GetRandomHeight(location.x, location.y, location.z);
+    }
+    
     public static int GetRandomHeight(int x, int y, int z)
     {
         float height = 0.0f;

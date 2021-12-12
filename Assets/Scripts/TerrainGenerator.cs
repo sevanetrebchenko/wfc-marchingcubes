@@ -61,12 +61,18 @@ public class TerrainGenerator : MonoBehaviour
         waveFunction_ = new WaveFunction(width - 1, height - 1, depth - 1);
 
         InitialConditions();
+        Constraints();
         
         waveFunction_.Run();
 
         GenerateHeightMap();
         GenerateMesh();
         ConstructMesh();
+    }
+
+    private void Update()
+    {
+        chunk_.transform.RotateAround(new Vector3(width / 2, height / 2, depth / 2), new Vector3(0, 1, 0), 15.0f * Time.deltaTime);
     }
 
     private void OnDrawGizmos()
@@ -99,6 +105,14 @@ public class TerrainGenerator : MonoBehaviour
         Gizmos.DrawSphere(location, 0.1f);
     }
 
+    private void OnGUI()
+    {
+        if (GUILayout.Button("Regenerate"))
+        {
+            Regenerate();
+        }
+    }
+    
     // Function is called before any collapsing of the function happens.
     // Responsible for setting ALL initial conditions for the algorithm to work with.
     void InitialConditions()
@@ -121,11 +135,18 @@ public class TerrainGenerator : MonoBehaviour
 
                     for (int i = 0; i < 8; ++i)
                     {
-                        corners[i].SetValue(Vertex.AboveTerrain);
+                        corners[i].SetValueFinal(Vertex.AboveTerrain);
                     }
                 }
             }
         }
+    }
+
+    private void Constraints()
+    {
+        // waveFunction_.AddConstraint(new Flatten());
+        // waveFunction_.AddConstraint(new NoOverhang());
+        waveFunction_.AddConstraint(new RandomNoise());
     }
     
     private void GenerateHeightMap()
@@ -279,6 +300,28 @@ public class TerrainGenerator : MonoBehaviour
         }
         
         return x + z * width_ + y * width_ * depth_;
+    }
+
+    private void Regenerate()
+    {
+        // A marching cube configuration can have up to 15 triangles.
+        meshVertices_ = new Vector3[totalNumCubes_ * 15];
+        heightMap_ = new int[totalNumNodes_];
+        numMeshVertices_ = 0;
+
+        // Generate internal mesh.
+        waveFunction_ = new WaveFunction(width - 1, height - 1, depth - 1);
+
+        HeightGenerator.Refresh();
+        
+        InitialConditions();
+        Constraints();
+        
+        waveFunction_.Run();
+
+        GenerateHeightMap();
+        GenerateMesh();
+        ConstructMesh();
     }
     
 }
