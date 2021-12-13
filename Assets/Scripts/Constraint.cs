@@ -70,8 +70,6 @@ public class Flatten : Constraint
 
         if (hasNonFlatTerrain)
         {
-            Debug.Log("Flattening");
-            
             // Generate flat terrain.
             corners[0].SetValue(Vertex.BelowTerrain);
             corners[1].SetValue(Vertex.BelowTerrain);

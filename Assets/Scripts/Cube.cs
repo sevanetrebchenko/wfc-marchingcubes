@@ -23,6 +23,7 @@ public class Cube
 
     private int entropy_;
     private Random random_;
+    private Constraint constraint_;
     
     public Cube(Vector3Int location)
     {
@@ -32,6 +33,8 @@ public class Cube
 
         entropy_ = IntPow(2, 8); // 2 ^ 8 total possible combinations.
         random_ = new Random();
+
+        constraint_ = new RandomNoise();
     }
     
     // Get the total number of combinations this cube has with the given corner configuration.
@@ -91,6 +94,16 @@ public class Cube
         }
         
         return false;
+    }
+
+    public void SetConstraint(Constraint constraint)
+    {
+        constraint_ = constraint;
+    }
+
+    public Constraint GetConstraint()
+    {
+        return constraint_;
     }
 
     private void InitializeVertices()

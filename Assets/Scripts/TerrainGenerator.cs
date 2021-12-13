@@ -12,6 +12,8 @@ public class TerrainGenerator : MonoBehaviour
     [Range(2, 80)] public int height;
     [Range(2, 80)] public int depth;
 
+    public GameObject camera;
+    
     // Allow for a buffer of 'air' nodes to generate terrain without gaps.
     private int width_;
     private int height_;
@@ -51,23 +53,10 @@ public class TerrainGenerator : MonoBehaviour
 
         totalNumNodes_ = width_ * height_ * depth_;
         totalNumCubes_ = (width_ - 1) * (height_ - 1) * (depth_ - 1);
+
+        camera.GetComponent<Transform>().LookAt(new Vector3(width_ / 2, height_ / 2 - 3, depth_ / 2));
         
-        // A marching cube configuration can have up to 15 triangles.
-        meshVertices_ = new Vector3[totalNumCubes_ * 15];
-        heightMap_ = new int[totalNumNodes_];
-        numMeshVertices_ = 0;
-
-        // Generate internal mesh.
-        waveFunction_ = new WaveFunction(width - 1, height - 1, depth - 1);
-
-        InitialConditions();
-        Constraints();
-        
-        waveFunction_.Run();
-
-        GenerateHeightMap();
-        GenerateMesh();
-        ConstructMesh();
+        Generate();
     }
 
     private void Update()
@@ -107,9 +96,16 @@ public class TerrainGenerator : MonoBehaviour
 
     private void OnGUI()
     {
+        GUI.Label(new Rect(6, 20, 500, 20), "Constraints being applied:");
+        GUI.Label(new Rect(6, 35, 500, 20), "1.  Pseudo-Random Height Generation");
+        GUI.Label(new Rect(6, 50, 500, 20), "2.  Fixed Initial Conditions (for floor and statue)");
+        GUI.Label(new Rect(6, 65, 500, 20), "3.  No Overhangs (over statue)");
+        
+        GUI.Label(new Rect(6, 90, 500, 20), "Roland Munguia, Seva Netrebchenko");
+        
         if (GUILayout.Button("Regenerate"))
         {
-            Regenerate();
+            Generate();
         }
     }
     
@@ -117,22 +113,38 @@ public class TerrainGenerator : MonoBehaviour
     // Responsible for setting ALL initial conditions for the algorithm to work with.
     void InitialConditions()
     {
-        // Make a hole in the middle of the generated terrain.
-        int xStart = (width - 1) / 2 - 3;
-        int xEnd = (width - 1) / 2 + 3;
-        
-        int zStart = (depth - 1) / 2 - 3;
-        int zEnd = (depth - 1) / 2 + 3;
-
-        for (int x = xStart; x < xEnd; ++x)
+        // Floor needs to be filled.
+        for (int x = 0; x < waveFunction_.GetWidth(); ++x)
         {
-            for (int y = 0; y < height - 1; ++y)
+            for (int z = 0; z < waveFunction_.GetDepth(); ++z)
             {
-                for (int z = zStart; z < zEnd; ++z)
+                Cube cube = waveFunction_.GetCube(x, 0, z);
+                Vertex[] corners = cube.GetCorners();
+
+                for (int i = 0; i < 8; ++i)
+                {
+                    corners[i].SetValueFinal(Vertex.BelowTerrain);
+                }
+            }
+        }
+
+        int offset = 2;
+        int xStart = (width - 1) / 2 - offset;
+        int xEnd = (width - 1) / 2 + offset;
+        
+        int zStart = (depth - 1) / 2 - offset;
+        int zEnd = (depth - 1) / 2 + offset;
+        
+        
+        for (int x = xStart - 1; x <= xEnd + 1; ++x)
+        {
+            for (int y = 1; y < waveFunction_.GetHeight(); ++y)
+            {
+                for (int z = zStart - 1; z <= zEnd + 1; ++z)
                 {
                     Cube cube = waveFunction_.GetCube(x, y, z);
                     Vertex[] corners = cube.GetCorners();
-
+    
                     for (int i = 0; i < 8; ++i)
                     {
                         corners[i].SetValueFinal(Vertex.AboveTerrain);
@@ -140,15 +152,49 @@ public class TerrainGenerator : MonoBehaviour
                 }
             }
         }
+        
+        
+        for (int x = xStart; x <= xEnd; ++x)
+        {
+            for (int y = 1; y < 3; ++y)
+            {
+                for (int z = zStart; z <= zEnd; ++z)
+                {
+                    Cube cube = waveFunction_.GetCube(x, y, z);
+                    Vertex[] corners = cube.GetCorners();
+    
+                    for (int i = 0; i < 8; ++i)
+                    {
+                        corners[i].SetValueFinal(Vertex.BelowTerrain);
+                    }
+                }
+            }
+        }
+        
+        for (int y = 0; y < 5; ++y)
+        {
+            Cube cube = waveFunction_.GetCube((width - 1) / 2, y, (depth - 1) / 2);
+            Vertex[] corners = cube.GetCorners();
+
+            for (int i = 0; i < 8; ++i)
+            {
+                corners[i].SetValueFinal(Vertex.BelowTerrain);
+            }
+        }
+        
+        for (int x = xStart; x < xEnd; ++x)
+        {
+            for (int y = 0; y < waveFunction_.GetHeight(); ++y)
+            {
+                for (int z = zStart; z < zEnd; ++z)
+                {
+                    Cube cube = waveFunction_.GetCube(x, y, z);
+                    cube.SetConstraint(new NoOverhang());
+                }
+            }
+        }
     }
 
-    private void Constraints()
-    {
-        // waveFunction_.AddConstraint(new Flatten());
-        // waveFunction_.AddConstraint(new NoOverhang());
-        waveFunction_.AddConstraint(new RandomNoise());
-    }
-    
     private void GenerateHeightMap()
     {
         // Initialize all nodes as air nodes.
@@ -288,7 +334,7 @@ public class TerrainGenerator : MonoBehaviour
 
         chunk_.GetComponent<MeshFilter>().mesh = mesh;
         
-        Debug.Log("Constructed mesh with " + numMeshVertices_ + " vertices");
+        // Debug.Log("Constructed mesh with " + numMeshVertices_ + " vertices");
     }
     
     private int GetIndex(int x, int y, int z)
@@ -302,7 +348,7 @@ public class TerrainGenerator : MonoBehaviour
         return x + z * width_ + y * width_ * depth_;
     }
 
-    private void Regenerate()
+    private void Generate()
     {
         // A marching cube configuration can have up to 15 triangles.
         meshVertices_ = new Vector3[totalNumCubes_ * 15];
@@ -315,8 +361,6 @@ public class TerrainGenerator : MonoBehaviour
         HeightGenerator.Refresh();
         
         InitialConditions();
-        Constraints();
-        
         waveFunction_.Run();
 
         GenerateHeightMap();

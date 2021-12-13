@@ -17,8 +17,6 @@ public class WaveFunction
 
     private Random random_;
 
-    private List<Constraint> constraints_;
-
     public WaveFunction(int widthInCubes, int heightInCubes, int depthInCubes)
     {
         width_ = widthInCubes;
@@ -27,7 +25,6 @@ public class WaveFunction
         totalNumCubes_ = widthInCubes * heightInCubes * depthInCubes;
 
         random_ = new Random();
-        constraints_ = new List<Constraint>();
 
         InitializeCubes();
     }
@@ -55,11 +52,6 @@ public class WaveFunction
         {
             Iterate();
         } while (!IsCollapsed());
-    }
-
-    public void AddConstraint(Constraint constraint)
-    {
-        constraints_.Add(constraint);
     }
 
     public Cube[] GetCubes()
@@ -160,11 +152,9 @@ public class WaveFunction
     private void CollapseAt(int cubeIndex)
     {
         // Debug.Log("Collapsing cube at index: " + cubeIndex);
-
-        foreach (Constraint constraint in constraints_)
-        {
-            constraint.Constrain(cubes_[cubeIndex], this);
-        }
+        Cube cube = cubes_[cubeIndex];
+        Constraint constraint = cube.GetConstraint();
+        constraint.Constrain(cube, this);
     }
 
     private void Propagate(int cubeIndex)
